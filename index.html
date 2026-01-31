@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Life-Link QR | Emergency Response System</title>
+    <meta name="description"
+        content="Generate emergency QR codes with your medical information. Privacy-first, zero-database emergency response system.">
+    <meta name="theme-color" content="#DC2626">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- QRCode.js CDN - Using cdnjs for reliability -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'emergency-red': '#DC2626',
+                        'emergency-dark': '#991B1B',
+                        'medical-blue': '#1E40AF',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-subtle': 'bounceSubtle 1s infinite',
+                    },
+                    keyframes: {
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(-5%)' },
+                            '50%': { transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FFFFFF 50%, #F3F4F6 100%);
+        }
+
+        .emergency-gradient {
+            background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 60px rgba(220, 38, 38, 0.4);
+        }
+
+        .pulse-ring {
+            animation: pulseRing 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 15px rgba(220, 38, 38, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+
+        .stripe-pattern {
+            background: repeating-linear-gradient(-45deg,
+                    #FEE2E2,
+                    #FEE2E2 10px,
+                    #FECACA 10px,
+                    #FECACA 20px);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .medical-cross {
+            position: relative;
+        }
+
+        .medical-cross::before,
+        .medical-cross::after {
+            content: '';
+            position: absolute;
+            background: white;
+        }
+
+        .medical-cross::before {
+            width: 30%;
+            height: 100%;
+            left: 35%;
+            top: 0;
+        }
+
+        .medical-cross::after {
+            width: 100%;
+            height: 30%;
+            left: 0;
+            top: 35%;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen gradient-bg">
+
+    <!-- MODE A: Generator Form -->
+    <div id="generatorMode" class="min-h-screen px-4 py-8 flex flex-col items-center justify-center">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 emergency-gradient rounded-2xl mb-4 glow-effect">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                    </path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Life-Link QR</h1>
+            <p class="text-gray-600 text-sm">Emergency Response System</p>
+        </div>
+
+        <!-- Form Card -->
+        <div class="w-full max-w-md bg-white rounded-3xl card-shadow p-6 mb-6">
+            <div class="flex items-center gap-2 mb-6">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emergency-red" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <span class="font-semibold text-gray-800">Create Your Emergency Profile</span>
+            </div>
+
+            <form id="emergencyForm" class="space-y-4">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" id="name" required placeholder="John Doe"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 transition-all duration-200">
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Number *</label>
+                    <input type="tel" id="phone" required placeholder="+1 234 567 8900"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 transition-all duration-200">
+                </div>
+
+                <!-- Blood Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+                    <select id="blood"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 bg-white transition-all duration-200">
+                        <option value="">Select Blood Type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <!-- Medical Conditions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Medical Conditions / Allergies</label>
+                    <textarea id="medical" rows="3" placeholder="Diabetes, Penicillin allergy, Asthma..."
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 resize-none transition-all duration-200"></textarea>
+                </div>
+
+                <!-- Generate Button -->
+                <button type="submit"
+                    class="w-full emergency-gradient text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2 mt-6">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    Generate Emergency QR Code
+                </button>
+            </form>
+        </div>
+
+        <!-- QR Code Display -->
+        <div id="qrContainer" class="hidden w-full max-w-md">
+            <div class="bg-white rounded-3xl card-shadow p-6 text-center">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Your Emergency QR Code</h3>
+                <div id="qrCode" class="flex justify-center mb-4 p-4 bg-white rounded-2xl inline-block mx-auto"></div>
+                <p class="text-sm text-gray-500 mb-4">Print this QR code and keep it with you</p>
+                <div class="flex gap-3">
+                    <button onclick="downloadQR()"
+                        class="flex-1 bg-gray-800 text-white font-semibold py-3 px-4 rounded-xl hover:bg-gray-700 transition-all duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                    </button>
+                    <button onclick="copyLink()"
+                        class="flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Notice -->
+        <div class="mt-6 text-center max-w-md">
+            <div class="flex items-center justify-center gap-2 text-gray-500 text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Zero-database. Your data stays in the URL only.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODE B: Emergency Profile Viewer (Bystander Mode) -->
+    <div id="viewerMode" class="hidden min-h-screen">
+
+        <!-- Emergency Header Banner -->
+        <div class="stripe-pattern py-2">
+            <div class="flex items-center justify-center gap-2">
+                <span class="text-emergency-red font-black text-xs uppercase tracking-widest">⚠ Medical Emergency Card
+                    ⚠</span>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="px-4 py-6">
+            <div class="max-w-md mx-auto bg-white rounded-3xl card-shadow overflow-hidden glow-effect">
+
+                <!-- Card Header -->
+                <div class="emergency-gradient px-6 py-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center pulse-ring">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-white/80 text-sm font-medium">EMERGENCY CONTACT</p>
+                            <h2 id="displayName" class="text-white text-2xl font-bold">Loading...</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-6 space-y-4">
+
+                    <!-- Blood Type Badge -->
+                    <div id="bloodSection" class="hidden">
+                        <div class="flex items-center gap-3 p-4 bg-red-50 rounded-2xl border-2 border-red-100">
+                            <div class="w-16 h-16 emergency-gradient rounded-2xl flex items-center justify-center">
+                                <span id="displayBlood" class="text-white text-xl font-black">A+</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">BLOOD TYPE</p>
+                                <p class="text-gray-800 text-lg font-bold">Critical for transfusion</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Conditions -->
+                    <div id="medicalSection" class="hidden">
+                        <div class="p-4 bg-amber-50 rounded-2xl border-2 border-amber-100">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-amber-800 text-sm font-bold uppercase mb-1">Medical Alert</p>
+                                    <p id="displayMedical" class="text-gray-700 text-base leading-relaxed">Loading...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Call Button -->
+                    <a id="callButton" href="tel:+1234567890"
+                        class="block w-full emergency-gradient text-white text-center font-bold py-5 px-6 rounded-2xl hover:opacity-90 transition-all duration-200 animate-bounce-subtle">
+                        <div class="flex items-center justify-center gap-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-white/80 text-xs uppercase tracking-wide">One-Tap Emergency Call</p>
+                                <p id="displayPhone" class="text-xl font-bold">+1 234 567 8900</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Instructions for bystander -->
+                    <div class="mt-4 p-4 bg-gray-50 rounded-2xl">
+                        <p class="text-gray-600 text-sm text-center">
+                            <strong>If this person needs help:</strong><br>
+                            Tap the button above to call their emergency contact immediately.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center pb-8">
+            <p class="text-gray-400 text-xs">Powered by Life-Link QR</p>
+            <a href="javascript:void(0)" onclick="createNew()"
+                class="text-emergency-red text-sm font-medium hover:underline mt-2 inline-block">
+                Create your own emergency QR →
+            </a>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">
+        <span id="toastMessage">Link copied!</span>
+    </div>
+
+    <script>
+        // Global variables
+        let generatedURL = '';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            // Check if URL has emergency profile parameters
+            if (params.has('n') && params.has('p')) {
+                showViewerMode(params);
+            } else {
+                showGeneratorMode();
+            }
+        });
+
+        // Show Generator Mode (Form)
+        function showGeneratorMode() {
+            document.getElementById('generatorMode').classList.remove('hidden');
+            document.getElementById('viewerMode').classList.add('hidden');
+
+            // Setup form submission
+            document.getElementById('emergencyForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        // Show Viewer Mode (Emergency Card)
+        function showViewerMode(params) {
+            document.getElementById('generatorMode').classList.add('hidden');
+            document.getElementById('viewerMode').classList.remove('hidden');
+
+            // Decode and display data
+            const name = decodeURIComponent(params.get('n') || 'Unknown');
+            const phone = decodeURIComponent(params.get('p') || '');
+            const blood = decodeURIComponent(params.get('b') || '');
+            const medical = decodeURIComponent(params.get('m') || '');
+
+            // Update display
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('displayPhone').textContent = phone;
+            document.getElementById('callButton').href = 'tel:' + phone.replace(/\s/g, '');
+
+            // Blood type
+            if (blood) {
+                document.getElementById('bloodSection').classList.remove('hidden');
+                document.getElementById('displayBlood').textContent = blood;
+            }
+
+            // Medical conditions
+            if (medical) {
+                document.getElementById('medicalSection').classList.remove('hidden');
+                document.getElementById('displayMedical').textContent = medical;
+            }
+        }
+
+        // Handle form submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const blood = document.getElementById('blood').value;
+            const medical = document.getElementById('medical').value.trim();
+
+            // Validate required fields
+            if (!name || !phone) {
+                showToast('Please fill in required fields');
+                return;
+            }
+
+            // Build URL with parameters
+            const params = new URLSearchParams();
+            params.set('n', name);
+            params.set('p', phone);
+            if (blood) params.set('b', blood);
+            if (medical) params.set('m', medical);
+
+            generatedURL = window.location.origin + window.location.pathname + '?' + params.toString();
+
+            // Generate QR Code
+            generateQRCode(generatedURL);
+
+            // Show QR container
+            document.getElementById('qrContainer').classList.remove('hidden');
+
+            // Scroll to QR code
+            document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate QR Code
+        function generateQRCode(url) {
+            const qrContainer = document.getElementById('qrCode');
+            qrContainer.innerHTML = '';
+
+            // Create a div element for the QR code
+            const qrDiv = document.createElement('div');
+            qrDiv.id = 'qrCanvas';
+            qrContainer.appendChild(qrDiv);
+
+            // Generate QR code using qrcodejs library
+            try {
+                new QRCode(qrDiv, {
+                    text: url,
+                    width: 250,
+                    height: 250,
+                    colorDark: '#1F2937',
+                    colorLight: '#FFFFFF',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (error) {
+                console.error(error);
+                showToast('Error generating QR code');
+            }
+        }
+
+        // Download QR Code
+        function downloadQR() {
+            const qrDiv = document.getElementById('qrCanvas');
+            const canvas = qrDiv ? qrDiv.querySelector('canvas') : null;
+            if (!canvas) {
+                showToast('Generate QR code first');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = 'life-link-emergency-qr.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            showToast('QR Code downloaded!');
+        }
+
+        // Copy link to clipboard
+        function copyLink() {
+            if (!generatedURL) {
+                showToast('Generate QR code first');
+                return;
+            }
+
+            navigator.clipboard.writeText(generatedURL).then(function () {
+                showToast('Link copied to clipboard!');
+            }).catch(function () {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedURL;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Link copied to clipboard!');
+            });
+        }
+
+        // Create new profile (from viewer mode)
+        function createNew() {
+            window.location.href = window.location.origin + window.location.pathname;
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(function () {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+
+</html>
